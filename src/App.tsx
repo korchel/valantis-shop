@@ -1,12 +1,16 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Provider } from 'react-redux';
+
 import './App.css';
+import store from './store';
+import Shop from '../src/components/Shop';
 
 const App: React.FC = () => {
   return (
-    <div>
+    <Provider store={store}>
+      <Shop />
       <p>app!!</p>
-    </div>
+    </Provider>
   );
 };
 
