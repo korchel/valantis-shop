@@ -3,7 +3,7 @@ import md5 from 'md5';
 
 import {
   type IResponseIds, type IQueryIds,
-  type IResponseItems, type IQUeryItems,
+  type IResponseItems, type QueryItems,
   type IResponseFields, type IQueryFields,
   type IResponseFilter, type IQueryFilter,
 } from '../types/types';
@@ -37,7 +37,7 @@ export const itemsApi = createApi({
         }
       })
     }),
-    getItems: builder.query<IResponseItems, IQUeryItems>({
+    getItems: builder.query<IResponseItems, QueryItems>({
       query: (ids) => ({
         url: '',
         method: 'POST',

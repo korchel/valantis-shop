@@ -7,18 +7,30 @@ import {
   useFilterQuery as filter,
 } from '../store/itemsApi';
 
+import ItemCard from './ItemCard';
+
 const Shop: React.FC = () => {
-  const ids = getIds({ offset: 10, limit: 10 });
-  console.log(ids, 'ids')
-  const iems = getItems({ ids: ['1789ecf3-f81c-4f49-ada2-83804dcc74b0'] });
-  console.log(iems, 'items')
+  const { data: ids, isLoading: isLoadingIds } = getIds({ offset: 10, limit: 10 });
+  console.log(ids?.result, 'ids')
+
+  const { data: items, isLoading: isLoadingItems } = getItems({ ids: ids?.result });
+  console.log(items, 'items')
+
   const fields = getFields({ field: 'brand', offset: 10, limit: 10 })
   console.log(fields, 'fields')
+
   const { data } = filter({ price: 17500.0 })
   console.log(data, 'filter')
-  return (
-    <div>
 
+  return (
+    <div className="grid-container container">
+      {isLoadingIds && 'Идет загрузка...'}
+      {isLoadingItems && 'Идет загрузка...'}
+      {
+        items?.result.map((item) => (
+          <ItemCard key={item.id} {...item}/>
+        ))
+      }
     </div>
   );
 };
