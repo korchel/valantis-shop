@@ -6,8 +6,16 @@ import {
   useGetFieldsQuery as getFields,
   useFilterQuery as filter,
 } from '../store/itemsApi';
-
 import ItemCard from './ItemCard';
+import { type Item } from '../types/types';
+
+const removeDoubles = (items: Item[]): Item[] => {
+  const objectWithoutDoubles = items.reduce((acc: Record<string, Item>, item: Item) => {
+    acc[item.id] ??= item;
+    return acc;
+  }, {});
+  return Object.values(objectWithoutDoubles);
+};
 
 const Shop: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -39,7 +47,7 @@ const Shop: React.FC = () => {
       {isLoadingItems && 'Идет загрузка...'}
       <div className="grid-container">
         {
-          items?.result.map((item) => (
+          items && removeDoubles(items?.result).map((item) => (
             <ItemCard key={item.id} {...item}/>
           ))
         }
