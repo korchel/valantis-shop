@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   useGetIdsQuery as getIds,
@@ -10,7 +10,9 @@ import {
 import ItemCard from './ItemCard';
 
 const Shop: React.FC = () => {
-  const { data: ids, isLoading: isLoadingIds } = getIds({ offset: 10, limit: 10 });
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const { data: ids, isLoading: isLoadingIds } = getIds({ offset: currentPage * 50, limit: 50 });
   console.log(ids?.result, 'ids')
 
   const { data: items, isLoading: isLoadingItems } = getItems({ ids: ids?.result });
@@ -22,15 +24,41 @@ const Shop: React.FC = () => {
   const { data } = filter({ price: 17500.0 })
   console.log(data, 'filter')
 
+  const nextPage = (): void => {
+    console.log(currentPage, '!!!!')
+    setCurrentPage(currentPage + 1);
+  };
+
+  const previousPage = (): void => {
+    setCurrentPage(currentPage - 1);
+  };
+
   return (
-    <div className="grid-container container">
+    <div className="container">
       {isLoadingIds && 'Идет загрузка...'}
       {isLoadingItems && 'Идет загрузка...'}
-      {
-        items?.result.map((item) => (
-          <ItemCard key={item.id} {...item}/>
-        ))
-      }
+      <div className="grid-container">
+        {
+          items?.result.map((item) => (
+            <ItemCard key={item.id} {...item}/>
+          ))
+        }
+      </div>
+      <div className="pagination">
+        <button
+          className="btn"
+          onClick={previousPage}
+          disabled={currentPage === 0}
+        >
+          {'<'}
+        </button>
+        <button
+          className="btn"
+          onClick={nextPage}
+        >
+          {'>'}
+        </button>
+      </div>
     </div>
   );
 };

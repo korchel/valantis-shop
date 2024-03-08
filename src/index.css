@@ -1,5 +1,5 @@
 @import './scss/ItemCard.scss';
-@import './scss/shop.scss';
+@import './scss/Shop.scss';
 
 body {
   margin: 0;
@@ -15,10 +15,6 @@ body {
 *::after {
   border: none;
   box-sizing: border-box;
-}
-
-:root {
-
 }
 
 .container {
