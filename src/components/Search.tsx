@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { type IQueryFilter, type IResponseFilter } from '../types/types';
 import { type LazyQueryTrigger } from '@reduxjs/toolkit/dist/query/react/buildHooks';
 import {
   type BaseQueryFn, type FetchArgs, type QueryDefinition,
   type FetchBaseQueryError, type FetchBaseQueryMeta
 } from '@reduxjs/toolkit/query';
 import { useDebounceValue } from 'usehooks-ts';
+
+import { type IQueryFilter, type IResponseFilter } from '../types/types';
 
 interface searchProps {
   triggerFilter: LazyQueryTrigger<QueryDefinition<IQueryFilter, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, Record<string, unknown>, FetchBaseQueryMeta>, never, IResponseFilter, 'items'>>,

@@ -3,12 +3,14 @@ import { TailSpin } from 'react-loader-spinner';
 
 import {
   useGetIdsQuery as getIds,
+  useGetFieldsQuery as getFields,
   useLazyGetItemsQuery as getItems,
   useLazyFilterQuery as filter,
 } from '../store/itemsApi';
 import ItemCard from './ItemCard';
 import { type Item } from '../types/types';
 import Search from './Search';
+import Filter from './Filter';
 
 const removeDoubles = (items: Item[]): Item[] => {
   const objectWithoutDoubles = items.reduce((acc: Record<string, Item>, item: Item) => {
@@ -23,6 +25,8 @@ const Shop: React.FC = () => {
   const [currentIds, setCurrentsIds] = useState<string[]>([]);
 
   const { data: ids, isLoading: isLoadingIds } = getIds({ offset: currentPage * 50, limit: 50 });
+  const { data: brands } = getFields({ field: 'brand', offset: 0, limit: 1000 });
+  // const { data: prices } = getFields({ field: 'price', offset: 0, limit: 1000 });
 
   const [triggerGetItems, { data: items, isLoading: isLoadingItems }] = getItems();
   const [triggerFilter, { data: filteredItems }] = filter();
@@ -54,10 +58,11 @@ const Shop: React.FC = () => {
   return (
     <div className="container">
       <div className="controls">
-        <Search triggerFilter={triggerFilter} onSearchClear={onSearchClear}/>
+        <Search triggerFilter={triggerFilter} onSearchClear={onSearchClear} />
+        <Filter triggerFilter={triggerFilter} onSearchClear={onSearchClear} brands={brands?.result ?? []} />
       </div>
-      {(isLoadingIds || isLoadingItems) && <TailSpin color="#bababa" wrapperClass="spinner" />}
-      {<TailSpin color="#bababa" wrapperClass="spinner" />}
+      {(isLoadingIds) && <TailSpin color="#bababa" wrapperClass="spinner" />}
+      {(isLoadingItems) && <TailSpin color="#bababa" wrapperClass="spinner" />}
       <div className="grid-container">
         {
           items && removeDoubles(items?.result).map((item) => (

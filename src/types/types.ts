@@ -7,7 +7,7 @@ export interface IQueryIds {
   limit: number,
 }
 
-export type Item = {
+export interface Item {
   brand: null | string,
   id: string,
   price: number,
@@ -22,10 +22,8 @@ export interface QueryItems {
   ids: string[] | undefined,
 };
 
-type Field = null | 'brand' | 'id' | 'price' | 'product';
-
 export interface IResponseFields {
-  result: Field[],
+  result: Array<string | null>,
 }
 
 export interface IQueryFields extends IQueryIds {
@@ -47,5 +45,4 @@ export type IQueryFilter = {
 } |
 {
   product: string
-};                                  // ?????
-
+}; // ?????
