@@ -34,11 +34,10 @@ export interface IResponseFilter {
   result: string[],
 }
 
+// type Field = 'brand' | 'price' | 'product';
+
 export type IQueryFilter = {
   brand: null | string
-} |
-{
-  id: string
 } |
 {
   price: number

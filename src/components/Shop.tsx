@@ -26,7 +26,7 @@ const Shop: React.FC = () => {
 
   const { data: ids, isLoading: isLoadingIds } = getIds({ offset: currentPage * 50, limit: 50 });
   const { data: brands } = getFields({ field: 'brand', offset: 0, limit: 1000 });
-  // const { data: prices } = getFields({ field: 'price', offset: 0, limit: 1000 });
+  const { data: prices } = getFields({ field: 'price', offset: 0, limit: 1000 });
 
   const [triggerGetItems, { data: items, isLoading: isLoadingItems }] = getItems();
   const [triggerFilter, { data: filteredItems }] = filter();
@@ -59,7 +59,18 @@ const Shop: React.FC = () => {
     <div className="container">
       <div className="controls">
         <Search triggerFilter={triggerFilter} onSearchClear={onSearchClear} />
-        <Filter triggerFilter={triggerFilter} onSearchClear={onSearchClear} brands={brands?.result ?? []} />
+        <Filter
+          triggerFilter={triggerFilter}
+          onSearchClear={onSearchClear}
+          options={brands?.result ?? []}
+          type={'brand'}
+        />
+        <Filter
+          triggerFilter={triggerFilter}
+          onSearchClear={onSearchClear}
+          options={prices?.result ?? []}
+          type={'price'}
+        />
       </div>
       {(isLoadingIds) && <TailSpin color="#bababa" wrapperClass="spinner" />}
       {(isLoadingItems) && <TailSpin color="#bababa" wrapperClass="spinner" />}

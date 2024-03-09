@@ -9,14 +9,15 @@ import {
 import { type IQueryFilter, type IResponseFilter } from '../types/types';
 
 interface ISelectOption {
-  label: string | null,
-  value: string | null,
+  label: string | null | number,
+  value: string | null | number,
 }
 
 interface filterProps {
   triggerFilter: LazyQueryTrigger<QueryDefinition<IQueryFilter, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, Record<string, unknown>, FetchBaseQueryMeta>, never, IResponseFilter, 'items'>>,
   onSearchClear: () => void,
-  brands: Array<string | null>,
+  options: Array<string | null | number>,
+  type: 'price' | 'brand';
 }
 
 const selectStyles: StylesConfig = {
@@ -24,7 +25,7 @@ const selectStyles: StylesConfig = {
     ...baseStyles,
     backgroundColor: '#F0F0F0',
     height: '20px',
-    width: '200px',
+    width: '310px',
   }),
   option: (baseStyles, { isSelected, isFocused }) => ({
     ...baseStyles,
@@ -35,15 +36,14 @@ const selectStyles: StylesConfig = {
   }),
 };
 
-const Filter: React.FC<filterProps> = ({ triggerFilter, onSearchClear, brands }) => {
+const Filter: React.FC<filterProps> = ({ triggerFilter, onSearchClear, options, type }) => {
   const [selected, setSelected] = useState<ISelectOption | null>(null);
 
-  const selectOptions: ISelectOption[] = brands
-    .filter((brand, index) => brand !== null && brands.indexOf(brand) === index)
+  const selectOptions: ISelectOption[] = options
+    .filter((brand, index) => brand !== null && options.indexOf(brand) === index)
     .map((brand) => ({ label: brand, value: brand }));
 
   const handleSelect = (newValue: unknown, actionmeta: ActionMeta<unknown>): void => {
-    console.log(newValue, 'newValue');
     if (newValue === null) {
       setSelected(null);
     } else {
@@ -52,18 +52,20 @@ const Filter: React.FC<filterProps> = ({ triggerFilter, onSearchClear, brands })
   };
 
   useEffect(() => {
-    selected ? triggerFilter({ brand: selected?.value as string }) : onSearchClear();
+    const filterParam = type === 'price' ? { price: selected?.value as number } : { brand: selected?.value as string };
+
+    selected ? triggerFilter(filterParam) : onSearchClear();
   }, [selected, triggerFilter]);
 
   return (
     <div className="filter">
-      <p>Фильтрация по бренду:</p>
+      <p>{`Фильтрация по ${type === 'price' ? 'цене' : 'бренду'}:`}</p>
       <Select
         styles={selectStyles}
         className="select"
         classNamePrefix="react-select"
         options={selectOptions}
-        placeholder="brand"
+        placeholder={type}
         isClearable={true}
         isSearchable={false}
         value={selected}
