@@ -75,4 +75,6 @@ export const {
   useGetItemsQuery,
   useGetFieldsQuery,
   useFilterQuery,
+  useLazyFilterQuery,
+  useLazyGetItemsQuery,
 } = itemsApi;

@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { TailSpin } from 'react-loader-spinner';
 
 import {
   useGetIdsQuery as getIds,
-  useGetItemsQuery as getItems,
-  useGetFieldsQuery as getFields,
-  useFilterQuery as filter,
+  useLazyGetItemsQuery as getItems,
+  useLazyFilterQuery as filter,
 } from '../store/itemsApi';
 import ItemCard from './ItemCard';
 import { type Item } from '../types/types';
+import Search from './Search';
 
 const removeDoubles = (items: Item[]): Item[] => {
   const objectWithoutDoubles = items.reduce((acc: Record<string, Item>, item: Item) => {
@@ -19,32 +20,44 @@ const removeDoubles = (items: Item[]): Item[] => {
 
 const Shop: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [currentIds, setCurrentsIds] = useState<string[]>([]);
 
   const { data: ids, isLoading: isLoadingIds } = getIds({ offset: currentPage * 50, limit: 50 });
-  console.log(ids?.result, 'ids')
 
-  const { data: items, isLoading: isLoadingItems } = getItems({ ids: ids?.result });
-  console.log(items, 'items')
+  const [triggerGetItems, { data: items, isLoading: isLoadingItems }] = getItems();
+  const [triggerFilter, { data: filteredItems }] = filter();
 
-  const fields = getFields({ field: 'brand', offset: 10, limit: 10 })
-  console.log(fields, 'fields')
+  useEffect(() => {
+    currentIds.length > 0 && triggerGetItems({ ids: currentIds });
+  }, [currentIds, triggerGetItems]);
 
-  const { data } = filter({ price: 17500.0 })
-  console.log(data, 'filter')
+  useEffect(() => {
+    setCurrentsIds(filteredItems?.result ?? []);
+  }, [filteredItems]);
 
-  const nextPage = (): void => {
-    console.log(currentPage, '!!!!')
+  useEffect(() => {
+    setCurrentsIds(ids?.result ?? []);
+  }, [ids]);
+
+  const getNextPage = (): void => {
     setCurrentPage(currentPage + 1);
   };
 
-  const previousPage = (): void => {
+  const getPreviousPage = (): void => {
     setCurrentPage(currentPage - 1);
+  };
+
+  const onSearchClear = (): void => {
+    setCurrentsIds(ids?.result ?? []);
   };
 
   return (
     <div className="container">
-      {isLoadingIds && 'Идет загрузка...'}
-      {isLoadingItems && 'Идет загрузка...'}
+      <div className="controls">
+        <Search triggerFilter={triggerFilter} onSearchClear={onSearchClear}/>
+      </div>
+      {(isLoadingIds || isLoadingItems) && <TailSpin color="#bababa" wrapperClass="spinner" />}
+      {<TailSpin color="#bababa" wrapperClass="spinner" />}
       <div className="grid-container">
         {
           items && removeDoubles(items?.result).map((item) => (
@@ -55,14 +68,15 @@ const Shop: React.FC = () => {
       <div className="pagination">
         <button
           className="btn"
-          onClick={previousPage}
+          onClick={getPreviousPage}
           disabled={currentPage === 0}
         >
           {'<'}
         </button>
         <button
           className="btn"
-          onClick={nextPage}
+          onClick={getNextPage}
+          disabled={isLoadingIds || isLoadingItems}
         >
           {'>'}
         </button>

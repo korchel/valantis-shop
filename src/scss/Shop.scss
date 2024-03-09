@@ -2,13 +2,21 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, 310px);
   justify-content: space-between;
+  gap: min(10px);
 }
 
 .pagination {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 0;
+
   display: flex;
   justify-content: center;
-  margin: 50px auto;
   gap: 5px;
+
+  background: white;
   .btn {
     width: 30px;
     height: 30px;
@@ -18,4 +26,25 @@
       background-color: #bababa;
     }
   }
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 100px;
+  width: 100px;
+  margin-left: -50px;
+  margin-top: -50px;
+}
+
+.controls {
+  position: sticky;
+  top: 0;
+  padding: 20px 0;
+
+  display: flex;
+  justify-content: space-between;
+
+  background: white;
 }
