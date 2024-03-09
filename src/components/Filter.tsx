@@ -23,7 +23,7 @@ const selectStyles: StylesConfig = {
   control: (baseStyles) => ({
     ...baseStyles,
     backgroundColor: '#F0F0F0',
-    height: '60px',
+    height: '20px',
     width: '200px',
   }),
   option: (baseStyles, { isSelected, isFocused }) => ({
@@ -56,17 +56,20 @@ const Filter: React.FC<filterProps> = ({ triggerFilter, onSearchClear, brands })
   }, [selected, triggerFilter]);
 
   return (
-    <Select
-      styles={selectStyles}
-      className="select"
-      classNamePrefix="react-select"
-      options={selectOptions}
-      placeholder="brand"
-      isClearable={true}
-      isSearchable={false}
-      value={selected}
-      onChange={handleSelect}
-    />
+    <div className="filter">
+      <p>Фильтрация по бренду:</p>
+      <Select
+        styles={selectStyles}
+        className="select"
+        classNamePrefix="react-select"
+        options={selectOptions}
+        placeholder="brand"
+        isClearable={true}
+        isSearchable={false}
+        value={selected}
+        onChange={handleSelect}
+      />
+    </div>
   );
 };
 
