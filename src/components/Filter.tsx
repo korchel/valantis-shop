@@ -23,7 +23,7 @@ interface filterProps {
 const selectStyles: StylesConfig = {
   control: (baseStyles) => ({
     ...baseStyles,
-    backgroundColor: '#F0F0F0',
+
     height: '20px',
     width: '310px',
   }),
@@ -32,7 +32,7 @@ const selectStyles: StylesConfig = {
     cursor: 'pointer',
     backgroundColor: isSelected || isFocused
       ? '#bababa'
-      : '#F0F0F0',
+      : 'white',
   }),
 };
 

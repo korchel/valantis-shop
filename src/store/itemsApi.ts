@@ -14,14 +14,14 @@ const generateXAuth = (password: string): string => {
   return xAuth;
 };
 
-const password = 'Valantis'; // hide?
+const API_KEY = process.env.REACT_APP_API_KEY as string;
 
 export const itemsApi = createApi({
   reducerPath: 'items',
   baseQuery: fetchBaseQuery({
     baseUrl: 'http://api.valantis.store:40000/',
     prepareHeaders: (headers) => {
-      headers.set('X-Auth', generateXAuth(password));
+      headers.set('X-Auth', generateXAuth(API_KEY));
       headers.set('Content-Type', 'application/json');
       return headers;
     },
