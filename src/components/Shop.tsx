@@ -8,7 +8,7 @@ import {
   useLazyFilterQuery as filter,
 } from '../store/itemsApi';
 import ItemCard from './ItemCard';
-import { type Item } from '../types/types';
+import { type IQueryFilter, type Item, FilterEnum } from '../types/types';
 import Search from './Search';
 import Filter from './Filter';
 
@@ -23,17 +23,22 @@ const removeDoubles = (items: Item[]): Item[] => {
 const Shop: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [currentIds, setCurrentsIds] = useState<string[]>([]);
+  const [currentFilter, setCurrentFilter] = useState<FilterEnum | null>(null);
+  const [isFailedSearch, setFailedSearch] = useState(false);
 
-  const { data: ids, isLoading: isLoadingIds } = getIds({ offset: currentPage * 50, limit: 50 });
+  const { data: ids, isLoading: isLoadingIds, isFetching: isFetchingIds } = getIds({ offset: currentPage * 50, limit: 50 });
   const { data: brands } = getFields({ field: 'brand', offset: 0, limit: 1000 });
   const { data: prices } = getFields({ field: 'price', offset: 0, limit: 1000 });
 
-  const [triggerGetItems, { data: items, isLoading: isLoadingItems }] = getItems();
-  const [triggerFilter, { data: filteredItems }] = filter();
+  const [triggerGetItems, { data: items, isLoading: isLoadingItems, isFetching: isFetchingItems }] = getItems();
+  const [triggerFilter, { data: filteredItems, isLoading: isLoadingFilter, isFetching: isFetchingFilter }] = filter();
 
   useEffect(() => {
-    currentIds.length > 0 && triggerGetItems({ ids: currentIds });
-  }, [currentIds, triggerGetItems]);
+    if (currentIds.length > 0) {
+      triggerGetItems({ ids: currentIds });
+    }
+    setFailedSearch(currentIds.length === 0);
+  }, [currentIds]);
 
   useEffect(() => {
     setCurrentsIds(filteredItems?.result ?? []);
@@ -55,48 +60,65 @@ const Shop: React.FC = () => {
     setCurrentsIds(ids?.result ?? []);
   };
 
+  const isLoadingState = (): boolean => {
+    return isLoadingIds || isFetchingIds || isLoadingItems || isFetchingItems || isLoadingFilter || isFetchingFilter;
+  };
+
   return (
     <div className="container">
       <div className="controls">
-        <Search triggerFilter={triggerFilter} onSearchClear={onSearchClear} />
+        <Search
+          currentFilter={currentFilter}
+          setCurrentFilter={setCurrentFilter}
+          triggerFilter={triggerFilter as (filterParam: IQueryFilter) => void}
+          onSearchClear={onSearchClear}
+        />
         <Filter
-          triggerFilter={triggerFilter}
+          triggerFilter={triggerFilter as (filterParam: IQueryFilter) => void}
           onSearchClear={onSearchClear}
           options={brands?.result ?? []}
-          type={'brand'}
+          type={FilterEnum.BRAND}
+          currentFilter={currentFilter}
+          setCurrentFilter={setCurrentFilter}
         />
         <Filter
-          triggerFilter={triggerFilter}
+          triggerFilter={triggerFilter as (filterParam: IQueryFilter) => void}
           onSearchClear={onSearchClear}
           options={prices?.result ?? []}
-          type={'price'}
+          type={FilterEnum.PRICE}
+          currentFilter={currentFilter}
+          setCurrentFilter={setCurrentFilter}
         />
       </div>
-      {(isLoadingIds) && <TailSpin color="#bababa" wrapperClass="spinner" />}
-      {(isLoadingItems) && <TailSpin color="#bababa" wrapperClass="spinner" />}
-      <div className="grid-container">
-        {
-          items && removeDoubles(items?.result).map((item) => (
-            <ItemCard key={item.id} {...item}/>
-          ))
-        }
-      </div>
-      <div className="pagination">
-        <button
-          className="btn"
-          onClick={getPreviousPage}
-          disabled={currentPage === 0}
-        >
-          {'<'}
-        </button>
-        <button
-          className="btn"
-          onClick={getNextPage}
-          disabled={isLoadingIds || isLoadingItems}
-        >
-          {'>'}
-        </button>
-      </div>
+      {isLoadingState() && <TailSpin color="#bababa" wrapperClass="spinner" />}
+      {isFailedSearch && !isLoadingState() && <p>Ничего не найдено</p>}
+      {!isFailedSearch && !isLoadingState() && items && (
+        <>
+          <div className="grid-container">
+          {
+            removeDoubles(items?.result).map((item) => (
+              <ItemCard key={item.id} {...item} />
+            ))
+          }
+          </div>
+          <div className="pagination">
+            <button
+              className="btn"
+              onClick={getPreviousPage}
+              disabled={currentPage === 0}
+            >
+              {'<'}
+            </button>
+            <button
+              className="btn"
+              onClick={getNextPage}
+              disabled={isLoadingIds || isLoadingItems || items.result.length <= 50}
+            >
+              {'>'}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

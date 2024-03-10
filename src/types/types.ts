@@ -34,14 +34,10 @@ export interface IResponseFilter {
   result: string[],
 }
 
-// type Field = 'brand' | 'price' | 'product';
+export enum FilterEnum {
+  PRODUCT = 'product',
+  BRAND = 'brand',
+  PRICE = 'price'
+}
 
-export type IQueryFilter = {
-  brand: null | string
-} |
-{
-  price: number
-} |
-{
-  product: string
-}; // ?????
+export type IQueryFilter = Partial<Record<FilterEnum, string | number>>

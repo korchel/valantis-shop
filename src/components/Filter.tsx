@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Select, { type StylesConfig, type ActionMeta } from 'react-select';
-import { type LazyQueryTrigger } from '@reduxjs/toolkit/dist/query/react/buildHooks';
-import {
-  type BaseQueryFn, type FetchArgs, type QueryDefinition,
-  type FetchBaseQueryError, type FetchBaseQueryMeta
-} from '@reduxjs/toolkit/query';
+import { type IQueryFilter, FilterEnum } from '../types/types';
+// import { type LazyQueryTrigger } from '@reduxjs/toolkit/dist/query/react/buildHooks';
+// import {
+//   type BaseQueryFn, type FetchArgs, type QueryDefinition,
+//   type FetchBaseQueryError, type FetchBaseQueryMeta
+// } from '@reduxjs/toolkit/query';
 
-import { type IQueryFilter, type IResponseFilter } from '../types/types';
+// import { type IQueryFilter, type IResponseFilter } from '../types/types';
 
 interface ISelectOption {
   label: string | null | number,
@@ -14,18 +15,19 @@ interface ISelectOption {
 }
 
 interface filterProps {
-  triggerFilter: LazyQueryTrigger<QueryDefinition<IQueryFilter, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, Record<string, unknown>, FetchBaseQueryMeta>, never, IResponseFilter, 'items'>>,
+  triggerFilter: (filterParam: IQueryFilter) => void,
   onSearchClear: () => void,
   options: Array<string | null | number>,
-  type: 'price' | 'brand';
+  type: FilterEnum,
+  currentFilter: FilterEnum | null,
+  setCurrentFilter: React.Dispatch<React.SetStateAction<FilterEnum | null>>,
 }
 
 const selectStyles: StylesConfig = {
   control: (baseStyles) => ({
     ...baseStyles,
-
     height: '20px',
-    width: '310px',
+    maxWidth: '310px',
   }),
   option: (baseStyles, { isSelected, isFocused }) => ({
     ...baseStyles,
@@ -36,11 +38,22 @@ const selectStyles: StylesConfig = {
   }),
 };
 
-const Filter: React.FC<filterProps> = ({ triggerFilter, onSearchClear, options, type }) => {
+const sortCallback = (a: number | string, b: number | string): number => {
+  if (a > b) {
+    return 1;
+  }
+  if (a < b) {
+    return -1;
+  }
+  return 0;
+};
+
+const Filter: React.FC<filterProps> = ({ triggerFilter, onSearchClear, options, type, currentFilter, setCurrentFilter }) => {
   const [selected, setSelected] = useState<ISelectOption | null>(null);
 
   const selectOptions: ISelectOption[] = options
-    .filter((brand, index) => brand !== null && options.indexOf(brand) === index)
+    .filter((option, index): option is number | string => option !== null && options.indexOf(option) === index)
+    .sort(sortCallback)
     .map((brand) => ({ label: brand, value: brand }));
 
   const handleSelect = (newValue: unknown, actionmeta: ActionMeta<unknown>): void => {
@@ -48,18 +61,25 @@ const Filter: React.FC<filterProps> = ({ triggerFilter, onSearchClear, options, 
       setSelected(null);
     } else {
       setSelected(newValue as ISelectOption);
+      setCurrentFilter(type);
     }
   };
 
   useEffect(() => {
-    const filterParam = type === 'price' ? { price: selected?.value as number } : { brand: selected?.value as string };
+    if (currentFilter !== type) {
+      setSelected(null);
+    }
+  }, [currentFilter, type]);
+
+  useEffect(() => {
+    const filterParam = type === FilterEnum.PRICE ? { price: selected?.value as number } : { brand: selected?.value as string };
 
     selected ? triggerFilter(filterParam) : onSearchClear();
-  }, [selected, triggerFilter]);
+  }, [selected]);
 
   return (
     <div className="filter">
-      <p>{`Фильтрация по ${type === 'price' ? 'цене' : 'бренду'}:`}</p>
+      <p>{`Фильтрация по ${type === FilterEnum.PRICE ? 'цене' : 'бренду'}:`}</p>
       <Select
         styles={selectStyles}
         className="select"

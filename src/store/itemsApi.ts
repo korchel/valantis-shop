@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { type BaseQueryApi, type FetchArgs, createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 import md5 from 'md5';
 
 import {
@@ -16,16 +16,34 @@ const generateXAuth = (password: string): string => {
 
 const API_KEY = process.env.REACT_APP_API_KEY as string;
 
+const staggeredBaseQueryWithBailOut = retry(
+  async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: Record<string, never>) => {
+    const result = await fetchBaseQuery({
+      baseUrl: 'https://api.valantis.store:41000/',
+      prepareHeaders: (headers) => {
+        headers.set('X-Auth', generateXAuth(API_KEY));
+        headers.set('Content-Type', 'application/json');
+        return headers;
+      },
+    })(
+      args,
+      api,
+      extraOptions,
+    );
+    if (result.error) {
+      console.warn('Error in query:', result.error.data);
+    }
+
+    return result;
+  },
+  {
+    maxRetries: 5,
+  }
+);
+
 export const itemsApi = createApi({
   reducerPath: 'items',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://api.valantis.store:41000/',
-    prepareHeaders: (headers) => {
-      headers.set('X-Auth', generateXAuth(API_KEY));
-      headers.set('Content-Type', 'application/json');
-      return headers;
-    },
-  }),
+  baseQuery: staggeredBaseQueryWithBailOut,
   endpoints: (builder) => ({
     getIds: builder.query<IResponseIds, IQueryIds>({
       query: (params) => ({
@@ -35,7 +53,8 @@ export const itemsApi = createApi({
           action: 'get_ids',
           params,
         }
-      })
+      }),
+      extraOptions: {},
     }),
     getItems: builder.query<IResponseItems, QueryItems>({
       query: (ids) => ({
@@ -45,7 +64,8 @@ export const itemsApi = createApi({
           action: 'get_items',
           params: ids,
         }
-      })
+      }),
+      extraOptions: {},
     }),
     getFields: builder.query<IResponseFields, IQueryFields>({
       query: (keys) => ({
@@ -56,6 +76,7 @@ export const itemsApi = createApi({
           params: keys,
         },
       }),
+      extraOptions: {},
     }),
     filter: builder.query<IResponseFilter, IQueryFilter>({
       query: (params) => ({
@@ -66,6 +87,7 @@ export const itemsApi = createApi({
           params,
         },
       }),
+      extraOptions: {},
     }),
   }),
 });

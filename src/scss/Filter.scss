@@ -4,5 +4,9 @@
   }
   .select {
     margin-top: 0.5rem;
+    min-width: 220px;
+    @media (max-width: 350px) {
+      width: 310px;
+    }
   }
 }
