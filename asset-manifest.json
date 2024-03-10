@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/valantis-shop/static/css/main.f8b3d457.css",
-    "main.js": "/valantis-shop/static/js/main.27fbc1fb.js",
+    "main.js": "/valantis-shop/static/js/main.dd5952dc.js",
     "index.html": "/valantis-shop/index.html",
     "main.f8b3d457.css.map": "/valantis-shop/static/css/main.f8b3d457.css.map",
-    "main.27fbc1fb.js.map": "/valantis-shop/static/js/main.27fbc1fb.js.map"
+    "main.dd5952dc.js.map": "/valantis-shop/static/js/main.dd5952dc.js.map"
   },
   "entrypoints": [
     "static/css/main.f8b3d457.css",
-    "static/js/main.27fbc1fb.js"
+    "static/js/main.dd5952dc.js"
   ]
 }
