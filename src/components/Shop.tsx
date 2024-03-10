@@ -112,7 +112,7 @@ const Shop: React.FC = () => {
             <button
               className="btn"
               onClick={getNextPage}
-              disabled={isLoadingIds || isLoadingItems || items.result.length <= 50}
+              disabled={isLoadingIds || isLoadingItems}
             >
               {'>'}
             </button>
